@@ -1,5 +1,4 @@
 import { registerRootComponent } from 'expo';
-import App from './src/App';
-import 'moment/locale/pt-br'
+import App from './src/app';
 
 registerRootComponent(App);

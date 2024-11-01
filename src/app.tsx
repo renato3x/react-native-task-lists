@@ -1,4 +1,4 @@
-import TaskList from '@screens/TaskList';
+import TaskList from '@screens/task-list';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 

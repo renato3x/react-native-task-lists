@@ -5,7 +5,9 @@
     "paths": {
       "@components/*": ["./src/components/*"],
       "@screens/*": ["./src/screens/*"],
-      "@assets/*": ["./assets/*"]
+      "@assets/*": ["./assets/*"],
+      "@common/*": ["./src/common/*"],
+      "@models/*": ["./src/models/*"],
     },
     "typeRoots": ["./src/@types", "node_modules/@types"]
   }
