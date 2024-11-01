@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 export default function TaskList() {
   const today = moment().format('dddd, MMMM D');
-  const [ tasks, _setTasks ] = useState<TaskType[]>([
+  const [ tasks, setTasks ] = useState<TaskType[]>([
     { id: 'd8a4f3ea-9e2c-4f6a-8e36-6a9c9e88aef4', description: 'Complete project report', estimateAt: new Date(2024, 10, 5) },
     { id: 'a6c73f2e-2d5f-4e69-8b6b-1a90e27bce62', description: 'Buy groceries', estimateAt: new Date(2024, 10, 2), doneAt: new Date(2024, 10, 1) },
     { id: '8f6e9c1a-572d-4b09-b846-8a2a5f8eae5c', description: 'Schedule team meeting', estimateAt: new Date(2024, 10, 3) },
@@ -31,6 +31,16 @@ export default function TaskList() {
     { id: 'f2a8c5d3-7b1e-4e9f-8a3c-6d9e7f4a5b2c', description: 'Update product roadmap', estimateAt: new Date(2024, 10, 20) },
     { id: 'e8c9d3a7-2f5b-4f6e-a3d1-9c4a7f2b8e5a', description: 'Prepare financial summary', estimateAt: new Date(2024, 10, 21), doneAt: new Date(2024, 10, 20) }
   ]);
+
+  function handleToggleDone(task: TaskType) {
+    if (task.doneAt) {
+      delete task.doneAt;
+    } else {
+      task.doneAt = new Date();
+    }
+
+    setTasks(tasks.map((t) => t.id === task.id ? task : t));
+  }
 
   return (
     <View style={styles.container}>
@@ -57,7 +67,7 @@ export default function TaskList() {
       <View style={styles.taskList}>
         <FlatList
           data={tasks}
-          renderItem={({ item }) => <Task {...item}/>}
+          renderItem={({ item }) => <Task {...item} onToggleDone={handleToggleDone}/>}
           keyExtractor={(item) => item.id as string}
         />
       </View>
