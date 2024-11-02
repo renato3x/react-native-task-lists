@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ImageBackground, FlatList } from 'react-native';
+import { Text, View, StyleSheet, ImageBackground, FlatList, Pressable } from 'react-native';
 import { globalStyles } from '@common/global-styles';
 import moment from 'moment';
 
@@ -6,9 +6,12 @@ import todayImage from '@assets/images/today.jpg';
 import Task from '@components/task';
 import { Task as TaskType } from '@models/task';
 import { useState } from 'react';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TaskList() {
   const today = moment().format('dddd, MMMM D');
+  const [ showDoneTasks, setShowDoneTasks ] = useState<boolean>(false);
   const [ tasks, setTasks ] = useState<TaskType[]>([
     { id: 'd8a4f3ea-9e2c-4f6a-8e36-6a9c9e88aef4', description: 'Complete project report', estimateAt: new Date(2024, 10, 5) },
     { id: 'a6c73f2e-2d5f-4e69-8b6b-1a90e27bce62', description: 'Buy groceries', estimateAt: new Date(2024, 10, 2), doneAt: new Date(2024, 10, 1) },
@@ -41,10 +44,27 @@ export default function TaskList() {
 
     setTasks(tasks.map((t) => t.id === task.id ? task : t));
   }
+  
+  function toggleShowDoneTasks() {
+    setShowDoneTasks(!showDoneTasks);
+  }
 
   return (
     <View style={styles.container}>
       <ImageBackground source={todayImage} style={styles.background}>
+        <SafeAreaProvider>
+          <SafeAreaView>
+            <View style={styles.iconBar}>
+              <Pressable onPress={toggleShowDoneTasks}>
+                <Icon
+                  name={showDoneTasks ? 'visibility' : 'visibility-off'}
+                  size={24}
+                  color="#fff"
+                />
+              </Pressable>
+            </View>
+          </SafeAreaView>
+        </SafeAreaProvider>
         <View style={styles.titleBar}>
           <Text
             style={[
@@ -67,7 +87,13 @@ export default function TaskList() {
       <View style={styles.taskList}>
         <FlatList
           data={tasks}
-          renderItem={({ item }) => <Task {...item} onToggleDone={handleToggleDone}/>}
+          renderItem={({ item }) => {
+            if (showDoneTasks) {
+              return <Task {...item} onToggleDone={handleToggleDone}/>
+            }
+
+            return !item.doneAt ? <Task {...item} onToggleDone={handleToggleDone}/> : null;
+          }}
           keyExtractor={(item) => item.id as string}
         />
       </View>
@@ -98,5 +124,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 20,
     marginBottom: 30,
-  }
+  },
+  iconBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+  },
 });
