@@ -10,4 +10,7 @@ export const globalStyles = StyleSheet.create({
   colorTertiary: {
     color: '#555',
   },
+  bgToday: {
+    backgroundColor: '#b13b44',
+  }
 });

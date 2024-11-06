@@ -8,10 +8,12 @@ import { Task as TaskType } from '@models/task';
 import { useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import AddTask from './add-task';
 
 export default function TaskList() {
   const today = moment().format('dddd, MMMM D');
   const [ showDoneTasks, setShowDoneTasks ] = useState<boolean>(false);
+  const [ showAddTaskModal, setShowAddTaskModal ] = useState<boolean>(false);
   const [ tasks, setTasks ] = useState<TaskType[]>([
     { id: 'd8a4f3ea-9e2c-4f6a-8e36-6a9c9e88aef4', description: 'Complete project report', estimateAt: new Date(2024, 10, 5) },
     { id: 'a6c73f2e-2d5f-4e69-8b6b-1a90e27bce62', description: 'Buy groceries', estimateAt: new Date(2024, 10, 2), doneAt: new Date(2024, 10, 1) },
@@ -49,8 +51,16 @@ export default function TaskList() {
     setShowDoneTasks(!showDoneTasks);
   }
 
+  function handleAddTask() {
+    setShowAddTaskModal(true);
+  }
+
   return (
     <View style={styles.container}>
+      <AddTask
+        visible={showAddTaskModal}
+        onCancel={() => setShowAddTaskModal(false)}
+      />
       <ImageBackground source={todayImage} style={styles.background}>
         <SafeAreaProvider>
           <SafeAreaView>
@@ -97,6 +107,12 @@ export default function TaskList() {
           keyExtractor={(item) => item.id as string}
         />
       </View>
+      <Pressable
+        style={[styles.addTaskButton, globalStyles.bgToday]}
+        onPress={handleAddTask}
+      >
+        <Icon name="add" size={25} style={globalStyles.colorSecondary}/>
+      </Pressable>
     </View>
   )
 }
@@ -130,4 +146,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 20,
   },
+  addTaskButton: {
+    position: 'absolute',
+    right: 30,
+    bottom: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
