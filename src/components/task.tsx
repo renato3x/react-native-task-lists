@@ -26,11 +26,27 @@ export default function Task({ onToggleDone, onDelete, ...task }: TaskProps) {
     )
   }
 
+  function SwipeLeftActions() {
+    return (
+      <Pressable style={styles.swipeLeftContent} onPress={handleDelete}>
+        <Icon name="delete" size={20} color="#fff"/>
+        <Text style={styles.deleteText}>Delete</Text>
+      </Pressable>
+    )
+  }
+
+  function handleSwipeableOpen(direction: 'right' | 'left') {
+    if (direction === 'left') {
+      handleDelete();
+    }
+  }
+
   return (
     <GestureHandlerRootView>
       <Swipeable
         renderRightActions={SwipeRightActions}
-        friction={2}
+        renderLeftActions={SwipeLeftActions}
+        onSwipeableOpen={handleSwipeableOpen}
       >
         <View style={styles.container}>
           <View style={styles.checkContainer}>
@@ -85,6 +101,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     alignItems: 'center',
     paddingVertical: 10,
+    backgroundColor: '#fff'
   },
   checkContainer: {
     width: '20%',
@@ -115,5 +132,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingHorizontal: 20,
+  },
+  swipeLeftContent: {
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  deleteText: {
+    color: '#fff',
+    fontSize: 20,
+    margin: 10,
   }
 });
