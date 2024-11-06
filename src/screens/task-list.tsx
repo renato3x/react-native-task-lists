@@ -5,16 +5,29 @@ import moment from 'moment';
 import todayImage from '@assets/images/today.jpg';
 import Task from '@components/task';
 import { Task as TaskType } from '@models/task';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AddTask from './add-task';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TaskList() {
   const today = moment().format('dddd, MMMM D');
   const [ showDoneTasks, setShowDoneTasks ] = useState<boolean>(false);
   const [ showAddTaskModal, setShowAddTaskModal ] = useState<boolean>(false);
   const [ tasks, setTasks ] = useState<TaskType[]>([]);
+
+  useEffect(() => {
+    const getTasks =  async () => {
+      const appTasks = await AsyncStorage.getItem('tasks');
+
+      if (appTasks) {
+        setTasks(JSON.parse(appTasks));
+      }
+    }
+
+    getTasks();
+  }, []);
 
   function handleToggleDone(task: TaskType) {
     if (task.doneAt) {
@@ -34,14 +47,17 @@ export default function TaskList() {
     setShowAddTaskModal(true);
   }
 
-  function saveTask(task: TaskType) {
-    setTasks([ task, ...tasks ]);
+  async function saveTask(task: TaskType) {
+    tasks.push(task);
+    setTasks(tasks);
+    await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
     setShowAddTaskModal(false);
   }
 
-  function deleteTask(task: TaskType) {
+  async function deleteTask(task: TaskType) {
     const filteredTasks = tasks.filter(t => t.id != task.id);
     setTasks(filteredTasks);
+    await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
   }
 
   return (
@@ -140,9 +156,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 30,
     bottom: 30,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center'
   }
