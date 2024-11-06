@@ -1,15 +1,20 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Modal } from 'react-native';
 import { globalStyles } from '@common/global-styles';
 import { useState } from 'react';
 import { Task } from '@models/task';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import moment from 'moment';
+import uuid from 'react-native-uuid';
 
 type AddTaskProps = {
   visible: boolean;
   onCancel?: () => void;
+  onSave?: (task: Task) => void
 }
 
-export default function AddTask({ visible, onCancel }: AddTaskProps) {
+export default function AddTask({ visible, onCancel, onSave }: AddTaskProps) {
+  const [ showDatePicker, setShowDatePicker ] = useState<boolean>(false);
   const [ task, setTask ] = useState<Task>({
     description: '',
     estimateAt: new Date,
@@ -18,6 +23,48 @@ export default function AddTask({ visible, onCancel }: AddTaskProps) {
   function handleCancel() {
     if (onCancel) {
       onCancel();
+    }
+  }
+
+  function handleDateChange(_event: DateTimePickerEvent, date?: Date) {
+    setShowDatePicker(false);
+    setTask({
+      ...task,
+      estimateAt: date as Date,
+    });
+  }
+
+  function DatePicker() {
+    if (Platform.OS === 'android') {
+      return (
+        <View>
+          <Pressable onPress={() => setShowDatePicker(true)} style={styles.showDatePickerButton}>
+            <Text>{ moment(task.estimateAt).format('dddd, MMMM D') }</Text>
+          </Pressable>
+          {showDatePicker && (
+            <DateTimePicker
+              mode="date"
+              value={task.estimateAt}
+              onChange={handleDateChange}
+            />
+          )}
+        </View>
+      );
+    }
+
+    return (
+      <DateTimePicker
+        mode="date"
+        value={task.estimateAt}
+        onChange={handleDateChange}
+      />
+    );
+  }
+
+  function handleSave() {
+    if (onSave) {
+      onSave({ ...task, id: uuid.v4() as string });
+      setTask({ description: '', estimateAt: new Date });
     }
   }
 
@@ -38,11 +85,12 @@ export default function AddTask({ visible, onCancel }: AddTaskProps) {
           onChangeText={(description) => setTask({ ...task, description })}
           style={styles.input}
         />
+        <DatePicker/>
         <View style={styles.modalActions}>
           <Pressable style={styles.button} onPress={handleCancel}>
             <Text style={styles.buttonText}>Cancel</Text>
           </Pressable>
-          <Pressable style={styles.button}>
+          <Pressable style={styles.button} onPress={handleSave} disabled={!task.description || !task.description.trim()}>
             <Text style={styles.buttonText}>Save</Text>
           </Pressable>
         </View>
@@ -88,5 +136,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#b13b44',
+  },
+  showDatePickerButton: {
+    marginLeft: 15,
   }
 });

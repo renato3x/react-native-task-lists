@@ -3,36 +3,60 @@ import moment from 'moment';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Task as TaskType } from '@models/task';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 interface TaskProps extends TaskType {
   onToggleDone?: (task: TaskType) => void;
+  onDelete?: (task: TaskType) => void;
 }
 
-export default function Task({ onToggleDone, ...task }: TaskProps) {
+export default function Task({ onToggleDone, onDelete, ...task }: TaskProps) {
+  function handleDelete() {
+    if (onDelete) {
+      onDelete(task);
+    }
+  }
+
+  function SwipeRightActions() {
+    return (
+      <Pressable style={styles.swipeRightContent} onPress={handleDelete}>
+        <Icon name="delete" size={30} color="#fff"/>
+      </Pressable>
+    )
+  }
+
   return (
-    <View style={styles.container}>
-      <View style={styles.checkContainer}>
-        { getCheckView(task, onToggleDone) }
-      </View>
-      <View>
-        <Text
-          style={[
-            globalStyles.colorPrimary,
-            { textDecorationLine: task.doneAt ? 'line-through' : 'none' }
-          ]}
-        >
-          { task.description }
-        </Text>
-        <Text
-          style={[
-            globalStyles.colorTertiary,
-            styles.date,
-          ]}
-        >
-          { moment(task.doneAt || task.estimateAt).format('dddd, MMMM D') }
-        </Text>
-      </View>
-    </View>
+    <GestureHandlerRootView>
+      <Swipeable
+        renderRightActions={SwipeRightActions}
+        friction={2}
+      >
+        <View style={styles.container}>
+          <View style={styles.checkContainer}>
+            { getCheckView(task, onToggleDone) }
+          </View>
+          <View>
+            <Text
+              style={[
+                globalStyles.colorPrimary,
+                { textDecorationLine: task.doneAt ? 'line-through' : 'none' }
+              ]}
+            >
+              { task.description }
+            </Text>
+            <Text
+              style={[
+                globalStyles.colorTertiary,
+                styles.date,
+              ]}
+            >
+              { moment(task.doneAt || task.estimateAt).format('dddd, MMMM D') }
+            </Text>
+          </View>
+        </View>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 }
 
@@ -84,5 +108,12 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 12,
+  },
+  swipeRightContent: {
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
   }
 });
